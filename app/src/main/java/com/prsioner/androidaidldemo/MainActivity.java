@@ -46,8 +46,8 @@ public class MainActivity extends AppCompatActivity {
 
         initView();
 
-        bindService();
-
+        //bindService();
+        startService(new Intent(MainActivity.this, PersonService.class));
 
     }
 
@@ -90,6 +90,9 @@ public class MainActivity extends AppCompatActivity {
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
+
+                Intent intent = new Intent(MainActivity.this,AsyncActivity.class);
+                startActivity(intent);
             }
         });
 

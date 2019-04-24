@@ -29,6 +29,12 @@ public class PersonService extends Service {
     }
 
     @Override
+    public void onStart(Intent intent, int startId) {
+        super.onStart(intent, startId);
+        Log.e(tag,"-----onStart()----");
+    }
+
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.e(tag,"---onStartCommand");
 
