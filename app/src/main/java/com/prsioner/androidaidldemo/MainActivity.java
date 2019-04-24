@@ -12,7 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.prsioner.androidaidldemo.service.MusicService;
+import com.prsioner.androidaidldemo.service.PersonService;
 
 import java.util.List;
 
@@ -23,12 +23,12 @@ public class MainActivity extends AppCompatActivity {
     private Button showDataBtn;
     private TextView tvShowData;
 
-    IMusicService musicService;
+    IPersonService iService;
     ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Log.e(tag,"onServiceConnected");
-            musicService = IMusicService.Stub.asInterface(service);
+            iService = IPersonService.Stub.asInterface(service);
         }
 
         @Override
@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void bindService(){
-        Intent bIntent = new Intent(MainActivity.this, MusicService.class);
+        Intent bIntent = new Intent(MainActivity.this, PersonService.class);
         bindService(bIntent, serviceConnection,BIND_AUTO_CREATE);
     }
     private void initView(){
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                 person.setAge(25);
                 person.setTelNumber("13888888888");
                 try {
-                    musicService.savePersonInfo(person);
+                    iService.savePersonInfo(person);
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
@@ -80,7 +80,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 try {
-                    List<Person> personList = musicService.getAllPerson();
+                    List<Person> personList = iService.getAllPerson();
+                    Log.e(tag,"personList.size()="+personList.size());
                     for (int i=0;i<personList.size();i++){
                         Log.e(tag,personList.get(i).toString());
                         tvShowData.setText("第一人信息:"+personList.get(0).toString());
