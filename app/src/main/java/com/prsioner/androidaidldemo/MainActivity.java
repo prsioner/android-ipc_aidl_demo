@@ -46,8 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
         initView();
 
-        //bindService();
-        startService(new Intent(MainActivity.this, PersonService.class));
+        bindService();
 
     }
 
