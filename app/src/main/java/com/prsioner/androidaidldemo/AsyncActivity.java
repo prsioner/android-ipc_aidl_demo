@@ -16,12 +16,16 @@ import android.widget.TextView;
 import com.prsioner.androidaidldemo.service.HandlerWorkService;
 
 import java.lang.ref.WeakReference;
+import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.transform.Result;
 
 public class AsyncActivity extends AppCompatActivity {
 
-
+    private String tag = AsyncActivity.class.getSimpleName();
     private HandlerThread handlerThread;
 
     private Button btnStartLoad;
@@ -41,7 +45,61 @@ public class AsyncActivity extends AppCompatActivity {
         AsyncTaskTest();
 
         //IntentServiceTest();
+
+        //自定义创建线程池
+        createThreadPool();
     }
+
+    /**
+     * 使用ScheduledExecutorService 替代Timer 定时器的测试
+     */
+    private ScheduledExecutorService mScheduledExecutorService = Executors.newScheduledThreadPool(4);
+
+    private int timeCount = 1;
+    private TimerTask timerTask;
+    private void createThreadPool() {
+        Log.e(tag,"createThreadPool");
+        mScheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+
+                while (timeCount<100){
+                    timeCount ++;
+                    Log.e(tag,"timeCount:"+timeCount);
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        },1000,2000, TimeUnit.MILLISECONDS);
+
+
+        /*if(timerTask !=null){
+            timerTask.cancel();
+        }
+        timeCount =1;
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+
+                while (timeCount<100){
+                    timeCount ++;
+                    Log.e(tag,"timeCount:"+timeCount);
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+
+        mScheduledExecutorService.scheduleWithFixedDelay(timerTask,1000,500,TimeUnit.MILLISECONDS);*/
+
+    }
+
 
     private void initView() {
 
@@ -211,5 +269,6 @@ public class AsyncActivity extends AppCompatActivity {
         super.onDestroy();
         myAsyncTask.cancel(true);
         //handlerThread.quit();
+        mScheduledExecutorService.shutdown();
     }
 }

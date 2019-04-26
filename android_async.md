@@ -1,6 +1,6 @@
-Android开发中各种异步机制
+####Android开发中各种异步机制
 
-1.AsyncTask
+#####1.AsyncTask
 优点：
 方便实现异步通信，不需使用 “任务线程（如继承Thread类） + Handler”的复杂组合
 节省资源，采用线程池的缓存线程 + 复用线程，避免了频繁创建 & 销毁线程所带来的系统资源开销
@@ -101,7 +101,7 @@ AsyncTask产生的问题
 则要执行executeOnExecutor(Executor executor ,Object... params),第一个是Executor（线程池实例），第二个是任务参数
 eg：mytask = new MyAsyncTask().executeOnExecutor(Executors.newFixedThreadPool(1),imgUrls);
     
-2.HandlerThread
+#####2.HandlerThread
 用法浅析：
     
         // 步骤1：创建HandlerThread实例对象
@@ -135,7 +135,7 @@ eg：mytask = new MyAsyncTask().executeOnExecutor(Executors.newFixedThreadPool(1
         //通过Handler发送消息到其绑定的消息队列
         workHandler.sendMessage(msg);    
     
-3.IntentService
+#####3.IntentService
 > 1.IntentService会创建独立的worker线程来处理onHandleIntent()方法实现的代码，但是IntentService是继承自Service的，
 所以根据Android系统Kill Application的机制，使用IntentService的应用的优先级更高一点
 >2.Service可以通过startService和bindService这两种方式启动。IntentService自然也是可以通过上面两种方式启动。
@@ -211,7 +211,7 @@ eg：mytask = new MyAsyncTask().executeOnExecutor(Executors.newFixedThreadPool(1
 我们会发现执行完耗时任务后，会自动调用stopService()执行onDestroy(),无需手动调用stopService()
 
 
-4.AsyncQueryHandler
+#####4.AsyncQueryHandler
 
 一个用来帮助简化处理异步ContentResolver查询的工具类
 用法：
@@ -228,3 +228,39 @@ eg：mytask = new MyAsyncTask().executeOnExecutor(Executors.newFixedThreadPool(1
 3.分叉性的重度后台任务，考虑使用IntentService；
 
 4. 涉及ContentProvider的数据库操作，考虑使用AsyncQueryHandler。
+
+####为什么要用ScheduledExecutorService 替代Timer
+
+>1.Timer在执行定时任务时只会创建一个线程，所以如果存在多个任务，且任务时间过长，超过了两个任务的间隔时间，
+会发生定时失效或者定时执行不准确
+>2.如果TimerTask抛出RuntimeException，Timer会停止所有任务的运行
+>3.Timer执行周期任务时依赖系统时间，如果当前系统时间发生变化会出现一些执行上的变化，ScheduledExecutorService基于时间
+的延迟，不会由于系统时间的改变发生执行变化
+
+ScheduleExecutorService 主要有四种线程池
+
+1.newSingleThreadExecutor：单线程池，同时只有一个线程在跑。
+2.newCachedThreadPool() ：回收型线程池，可以重复利用之前创建过的线程，运行线程最大数是Integer.MAX_VALUE。
+3.newFixedThreadPool() ：固定大小的线程池，跟回收型线程池类似，只是可以限制同时运行的线程数量，超出的线程会在队列中等待
+4.newScheduledThreadPool：创建一个定长线程池，支持定时及周期性任务执行
+
+    private ScheduledExecutorService mScheduledExecutorService = Executors.newScheduledThreadPool(4);
+    private int timeCount = 1;
+    private TimerTask timerTask;
+    private void createThreadPool() {
+        Log.e(tag,"createThreadPool");
+        mScheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+
+                while (timeCount<100){
+                    timeCount ++;
+                    Log.e(tag,"timeCount:"+timeCount);
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        },1000,2000, TimeUnit.MILLISECONDS);
