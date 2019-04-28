@@ -234,7 +234,7 @@ Stub 中有一个DESCRIPTOR,它是Binder的唯一标识，其中两个int常量�
 然后服务端的onTransact方法就会被调起，直到RPC过程返回后，当前线程继续执行，并从_reply取出返回值（如果有的话），并返回结果
     
     
-    
+最后附上示例代码地址：https://github.com/prsioner/androidAIDLDemo    
     
     
     
